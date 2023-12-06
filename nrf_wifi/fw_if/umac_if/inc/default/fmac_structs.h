@@ -485,6 +485,8 @@ struct nrf_wifi_fmac_vif_ctx {
 	/** Channel setting for the current VIF */
 	unsigned char channel;
 #endif /* CONFIG_NRF700X_RAW_DATA_TX */
+	/** packet filter setting for the VIF */
+	unsigned char packet_filter;
 };
 
 /**
