@@ -216,6 +216,7 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 	struct nrf_wifi_fmac_vif_ctx *vif_ctx = NULL;
 	struct nrf_wifi_fmac_buf_map_info *rx_buf_info = NULL;
 	struct nrf_wifi_fmac_rx_pool_map_info pool_info;
+        struct raw_rx_pkt_header raw_rx_hdr;	
 	void *nwb = NULL;
 	void *nwb_data = NULL;
 	unsigned int num_pkts = 0;
@@ -229,6 +230,7 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 #endif /* CONFIG_NRF700X_STA_MODE */
 	struct nrf_wifi_fmac_dev_ctx_def *def_dev_ctx = NULL;
 	struct nrf_wifi_fmac_priv_def *def_priv = NULL;
+	static int count = 0;
 
 	def_dev_ctx = wifi_dev_priv(fmac_dev_ctx);
 	def_priv = wifi_fmac_priv(fmac_dev_ctx->fpriv);
@@ -292,6 +294,18 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 		rx_buf_info->nwb = 0;
 		rx_buf_info->mapped = false;
 
+		if (vif_ctx->promisc_mode) {
+			raw_rx_hdr.frequency = config->frequency;
+			raw_rx_hdr.signal = config->signal;
+			raw_rx_hdr.rate_flags = config->rate_flags;
+			raw_rx_hdr.rate = config->rate;
+
+			def_priv->callbk_fns.rx_sniffer_frm_callbk_fn(vif_ctx->os_vif_ctx,
+								      nwb,
+								      &raw_rx_hdr,
+								      1);
+		}
+
 		if (config->rx_pkt_type == NRF_WIFI_RX_PKT_DATA) {
 #ifdef CONFIG_NRF700X_STA_MODE
 			switch (config->rx_buff_info[i].pkt_type) {
@@ -351,6 +365,23 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 #endif /* CONFIG_WIFI_MGMT_RAW_SCAN_RESULTS */
 			nrf_wifi_osal_nbuf_free(fmac_dev_ctx->fpriv->opriv,
 						nwb);
+		} else if (config->rx_pkt_type == NRF_WIFI_RAW_RX_PKT) {
+                       raw_rx_hdr.frequency = config->frequency;
+                       raw_rx_hdr.signal = config->signal;
+                       raw_rx_hdr.rate_flags = config->rate_flags;
+                       raw_rx_hdr.rate = config->rate;
+			count = count + 1;
+
+			if (count == 10) {
+				nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+                                      "%s: calling rx_sniffer callback freq = 0x%x, signal = %d, rate_flags = %d, rate = %d\n", __func__, config->frequency, config->signal, config->rate_flags, config->rate);
+				count = 0;
+			}
+
+ 			def_priv->callbk_fns.rx_sniffer_frm_callbk_fn(vif_ctx->os_vif_ctx,
+                                                                     nwb,
+                                                                     &raw_rx_hdr,
+								     0); 
 		} else {
 			nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
 					      "%s: Invalid frame type recd %d",

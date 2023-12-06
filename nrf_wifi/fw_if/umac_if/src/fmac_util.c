@@ -357,6 +357,24 @@ enum nrf_wifi_status nrf_wifi_check_mode_validity(unsigned char mode)
 	} else if ((mode ^ (NRF_WIFI_STA_MODE |
 			    NRF_WIFI_TX_INJECTION_MODE)) == 0) {
 		return NRF_WIFI_STATUS_SUCCESS;
+	} else if ((mode ^ (NRF_WIFI_MONITOR_MODE |
+			    NRF_WIFI_TX_INJECTION_MODE)) == 0) {
+		/* TODO: to check if station is connected. if connected
+		 * Monitor mode cannot be enabled. Add this check to other
+		 * Monitor mode checks as well.
+		 */
+		return NRF_WIFI_STATUS_SUCCESS;
+	} else if ((mode ^ NRF_WIFI_MONITOR_MODE) == 0) {
+		return NRF_WIFI_STATUS_SUCCESS;
+	} else if ((mode ^ NRF_WIFI_PROMISCUOUS_MODE) == 0) {
+		return NRF_WIFI_STATUS_SUCCESS;
+	} else if ((mode ^ (NRF_WIFI_PROMISCUOUS_MODE |
+			    NRF_WIFI_STA_MODE)) == 0) {
+		return NRF_WIFI_STATUS_SUCCESS;
+	} else if ((mode ^ (NRF_WIFI_PROMISCUOUS_MODE |
+			    NRF_WIFI_TX_INJECTION_MODE |
+    			    NRF_WIFI_STA_MODE)) == 0) {
+		return NRF_WIFI_STATUS_SUCCESS;
 	}
 	return NRF_WIFI_STATUS_FAIL;
 }

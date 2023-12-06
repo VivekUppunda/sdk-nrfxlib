@@ -897,11 +897,15 @@ static enum nrf_wifi_status umac_process_sys_events(struct nrf_wifi_fmac_dev_ctx
 #endif /* CONFIG_NRF700X_RADIO_TEST */
 #ifdef CONFIG_NRF700X_RAW_DATA_TX
 	case NRF_WIFI_EVENT_RAW_TX_DONE:
+		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+				      "%s: NRF_WIFI_EVENT_RAW_TX_DONE\n", __func__);
 		status = nrf_wifi_fmac_rawtx_done_event_process(fmac_dev_ctx,
 						(struct nrf_wifi_event_raw_tx_done *)sys_head);
 		break;
 	case NRF_WIFI_EVENT_MODE_SET_DONE:
 		struct nrf_wifi_event_raw_config_mode *mode_event;
+		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+				      "%s: NRF_WIFI_EVENT_MODE_SET_DONE\n", __func__);
 
 		mode_event = (struct nrf_wifi_event_raw_config_mode *)sys_head;
 		if (!mode_event->status) {
@@ -921,6 +925,21 @@ static enum nrf_wifi_status umac_process_sys_events(struct nrf_wifi_fmac_dev_ctx
 				def_dev_ctx->vif_ctx[mode_event->if_index]->if_type =
 									NRF_WIFI_IFTYPE_STATION;
 				def_dev_ctx->tx_config.peers[MAX_PEERS].peer_id = -1;
+			} else if (mode_event->op_mode == NRF_WIFI_MONITOR_MODE) {
+		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+				      "%s: NRF_WIFI_MONITOR_MODE\n", __func__);
+				def_dev_ctx->vif_ctx[mode_event->if_index]->if_type =
+									NRF_WIFI_IFTYPE_MONITOR;
+				def_dev_ctx->tx_config.peers[MAX_PEERS].peer_id = -1;
+			} else if (mode_event->op_mode == (NRF_WIFI_MONITOR_MODE |
+							   NRF_WIFI_TX_INJECTION_MODE)) {
+		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+				      "%s: NRF_WIFI_MONITOR_MODE+injection\n", __func__);
+				def_dev_ctx->tx_config.peers[MAX_PEERS].peer_id = MAX_PEERS;
+				def_dev_ctx->tx_config.peers[MAX_PEERS].if_idx =
+									mode_event->if_index;
+				def_dev_ctx->vif_ctx[mode_event->if_index]->if_type =
+									NRF_WIFI_MONITOR_TX_INJECTOR;
 			}
 			status = NRF_WIFI_STATUS_SUCCESS;
 		}
@@ -938,8 +957,12 @@ static enum nrf_wifi_status umac_process_sys_events(struct nrf_wifi_fmac_dev_ctx
 #endif /* CONFIG_NRF700X_RAW_DATA_TX */
 	case NRF_WIFI_EVENT_FILTER_SET_DONE:
 		struct nrf_wifi_event_raw_config_filter *filter_event;
+		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+				      "%s: NRF_WIFI_EVENT_FILTER_SET_DONE\n", __func__);
 
 		filter_event = (struct nrf_wifi_event_raw_config_filter *)sys_head;
+		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+				      "%s: filter_event->status = %d\n", __func__, filter_event->status);
 		if (!filter_event->status) {
 			def_dev_ctx->vif_ctx[filter_event->if_index]->packet_filter =
 								filter_event->filter;

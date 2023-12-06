@@ -1830,7 +1830,6 @@ enum nrf_wifi_status nrf_wifi_fmac_start_rawpkt_xmit(void *dev_ctx,
 		 * return failure as network buffer and device
 		 * context are NULL
 		 */
-		def_dev_ctx->raw_pkt_stats.raw_pkt_send_failure += 1;
 		return NRF_WIFI_STATUS_FAIL;
 	}
 
