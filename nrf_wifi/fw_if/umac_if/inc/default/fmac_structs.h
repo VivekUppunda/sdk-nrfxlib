@@ -77,6 +77,19 @@ enum nrf_wifi_fmac_if_carr_state {
 
 
 /**
+ * @brief Structure to hold raw rx packet information.
+ *
+ * This structure holds the information to be sent to higher
+ * layers on receive of a raw frame.
+ */
+struct raw_rx_pkt_header {
+	unsigned short frequency;
+	signed short signal;
+	unsigned char rate_flags;
+	unsigned char rate;
+};
+
+/**
  * @brief Callback functions to be invoked by UMAC IF layer when a particular event occurs.
  *
  * This structure contains function pointers to all the callback functions that
@@ -248,6 +261,11 @@ struct nrf_wifi_fmac_callbk_fns {
 	void (*process_rssi_from_rx)(void *os_vif_ctx,
 				     signed short signal);
 #endif /* CONFIG_NRF700X_STA_MODE */
+	void (*rx_sniffer_frm_callbk_fn)(void *os_vif_ctx,
+					 void *frm,
+					 struct raw_rx_pkt_header *,
+					 bool promisc_mode);
+
 };
 
 #if defined(CONFIG_NRF700X_STA_MODE) || defined(__DOXYGEN__)
@@ -485,6 +503,12 @@ struct nrf_wifi_fmac_vif_ctx {
 	/** Channel setting for the current VIF */
 	unsigned char channel;
 #endif /* CONFIG_NRF700X_RAW_DATA_TX */
+	/** packet filter setting for the VIF */
+	unsigned char packet_filter;
+	/** promiscuous mode setting */
+	bool promisc_mode;
+	/** TX-Injection mode setting */
+	bool tx_injection_mode;
 };
 
 /**

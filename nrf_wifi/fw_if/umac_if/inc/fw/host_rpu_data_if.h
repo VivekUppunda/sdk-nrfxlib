@@ -154,13 +154,23 @@ struct nrf_wifi_tx_buff_done {
  * @brief This structure defines the type of received packet.
  *
  */
+#if 0
 enum nrf_wifi_rx_pkt_type {
 	/** The Rx packet is of type data */
 	NRF_WIFI_RX_PKT_DATA,
 	/** RX packet is beacon or probe response */
 	NRF_WIFI_RX_PKT_BCN_PRB_RSP
 };
-
+#else
+enum nrf_wifi_rx_pkt_type {
+	/** The Rx packet is of type data */
+	NRF_WIFI_RX_PKT_DATA,
+	/** RX packet is beacon or probe response */
+	NRF_WIFI_RX_PKT_BCN_PRB_RSP,
+	/** Raw Rx packet */
+	NRF_WIFI_RAW_RX_PKT,
+};
+#endif
 /**
  * @brief This structure provides information about the parameters in the RX data event.
  *
@@ -182,6 +192,7 @@ struct nrf_wifi_rx_buff_info {
  * @brief This structure represents RX data event(NRF_WIFI_CMD_RX_BUFF).
  *
  */
+#if 0
 struct nrf_wifi_rx_buff {
 	/** Header @ref nrf_wifi_umac_head */
 	struct nrf_wifi_umac_head umac_head;
@@ -202,7 +213,34 @@ struct nrf_wifi_rx_buff {
 	/** Information of each packet. @ref nrf_wifi_rx_buff_info */
 	struct nrf_wifi_rx_buff_info rx_buff_info[0];
 } __NRF_WIFI_PKD;
-
+#else
+struct nrf_wifi_rx_buff {
+	/** Header @ref nrf_wifi_umac_head */
+	struct nrf_wifi_umac_head umac_head;
+	/** Rx packet type. see &enum nrf_wifi_rx_pkt_type */
+	signed int rx_pkt_type;
+	/** Interface id */
+	unsigned char wdev_id;
+	/** Number of packets in this event */
+	unsigned char rx_pkt_cnt;
+	/** Depricated */
+	unsigned char rpu_align_offset;
+	/** MAC header length. Same for all packets in this event */
+	unsigned char mac_header_len;
+	/** Frequency on which this packet received */
+	unsigned short frequency;
+	/** signal strength */
+	signed short signal;
+	/** refer see &enum rpu_tput_mode */
+	unsigned char rate_flags;
+	/** rate: legacy rates: 1,2,55,11,6,9,12,18,24,36,48,54
+	 *		  11N VHT HE  : MCS index 0 to 7.
+	 */
+	unsigned char rate;
+	/** Information of each packet. @ref nrf_wifi_rx_buff_info */
+	struct nrf_wifi_rx_buff_info rx_buff_info[0];
+} __NRF_WIFI_PKD;
+#endif
 /**
  * @brief This structure provides information about the carrier (interface) state.
  *
