@@ -353,8 +353,7 @@ enum nrf_wifi_status nrf_wifi_check_mode_validity(unsigned char mode)
 	 */
 	if ((mode ^ NRF_WIFI_STA_MODE) == 0) {
 		return NRF_WIFI_STATUS_SUCCESS;
-	} else if ((mode ^ (NRF_WIFI_STA_MODE |
-			    NRF_WIFI_TX_INJECTION_MODE)) == 0) {
+	} else if ((mode ^ NRF_WIFI_MONITOR_MODE) == 0) {
 		return NRF_WIFI_STATUS_SUCCESS;
 	}
 	return NRF_WIFI_STATUS_FAIL;
@@ -363,7 +362,8 @@ enum nrf_wifi_status nrf_wifi_check_mode_validity(unsigned char mode)
 #ifdef CONFIG_NRF700X_RAW_DATA_TX
 bool nrf_wifi_util_is_rawpktmode_enabled(struct nrf_wifi_fmac_vif_ctx *vif)
 {
-	if (vif->if_type == NRF_WIFI_STA_TX_INJECTOR) {
+	if ((vif->if_type == NRF_WIFI_STA_TX_INJECTOR) ||
+	    (vif->if_type == NRF_WIFI_MONITOR_TX_INJECTOR)) {
 		return true;
 	}
 	return false;
