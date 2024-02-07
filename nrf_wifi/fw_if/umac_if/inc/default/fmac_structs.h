@@ -267,7 +267,8 @@ struct nrf_wifi_fmac_callbk_fns {
 #ifdef CONFIG_NRF700X_RAW_DATA_RX
 	void (*rx_sniffer_frm_callbk_fn)(void *os_vif_ctx,
 					 void *frm,
-					 struct raw_rx_pkt_header *);
+					 struct raw_rx_pkt_header *raw_hdr,
+					 bool promisc_mode);
 #endif
 };
 
@@ -512,6 +513,9 @@ struct nrf_wifi_fmac_vif_ctx {
 	/** Filter setting for Monitor and Promiscuous modes */
 	unsigned char packet_filter;
 #endif /* CONFIG_NRF700X_RAW_DATA_RX */
+#ifdef CONFIG_NRF700X_RAW_DATA_RX
+	bool promisc_mode;
+#endif
 };
 
 /**

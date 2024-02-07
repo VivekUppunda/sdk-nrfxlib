@@ -980,6 +980,9 @@ enum nrf_wifi_status nrf_wifi_fmac_set_tx_rate(struct nrf_wifi_fmac_dev_ctx *fma
 	status = nrf_wifi_hal_ctrl_cmd_send(fmac_dev_ctx->hal_dev_ctx,
 					    umac_cmd,
 					    (sizeof(*umac_cmd) + len));
+	nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+			      "%s: nrf_wifi_hal_ctrl_cmd_send completed with status %d",
+			      __func__, status);
 out:
 	return status;
 }
